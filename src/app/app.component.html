@@ -1,0 +1,108 @@
+<div class="container">
+  <h1 class="my-4">Time Sheet</h1>
+  <div class="my-4 d-flex justify-content-end">
+    <button class="custom-button px-3" type="button" data-toggle="modal" data-target="#exampleModal">Add Time</button>
+  </div>
+  <div>
+    <table>
+      <thead>
+        <th>
+          <div class="d-flex justify-content-center">
+            Work Title
+          </div>
+        </th>
+        <th *ngFor="let title of Object.entries(dateTitles); let i = index">
+          <div class="table-header" [ngClass]="{'sunday': title[1] == 'Sun'}">
+            <div>{{title[1]}}</div>
+            <div>{{i+15}}</div>
+          </div>
+        </th>
+        <th>
+          <div class="d-flex justify-content-center">
+            Total
+          </div>
+        </th>
+      </thead>
+      <tr *ngFor="let timeSheet of timeSheetData; let i = index">
+        <td class="ps-4">
+          {{timeSheet.name}}
+        </td>
+        <td #testing *ngFor="let date of Object.entries(timeSheet)?.slice(2,9);" contentEditable="true"
+          (blur)="updateTime(testing.innerText, i, date[0])" class="text-center">
+          {{date[1]}}
+        </td>
+        <td class="text-center">
+          {{getTotal(i)}}
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<div class="d-flex justify-content-center pt-4">
+  <button type="button" class="btn btn-primary text-center" (click)="showTableData()">
+    View Table Data
+  </button>
+</div>
+
+
+<!-- Modal for Add Time -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Insert Daily Hours</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body container">
+        <div class="row fw-semibold text-secondary mb-2">
+          <div class="col-4">Work Title</div>
+          <div class="col-4">Day</div>
+          <div class="col-4">Input Hours</div>
+        </div>
+        <form class="row" [formGroup]="updateTimeForm">
+          <div class="col-4">
+
+            <select class="form-select" formControlName="workTitle">
+              <option value="">Choose Work Title</option>
+              <option *ngFor="let temp of timeSheetData; let i=index" [ngValue]="i">{{temp.name}}</option>
+            </select>
+          </div>
+          <div class="col-4">
+            <select class="form-select" formControlName="day">
+              <option value="">Choose Day</option>
+              <option *ngFor="let day of Object.entries(dateTitles)" [ngValue]="day[0]">
+                {{day[1]}}</option>
+            </select>
+          </div>
+          <div class="form-group col-4">
+            <input type="text" class="form-control" id="exampleInputHours" aria-describedby="inputHours"
+              name="inputHours" formControlName="inputHours" placeholder="Input Hours"
+              pattern="^((((1\d)|(2[0-3])|\d)(\.\d?\d?)?)|((24)((\.0)?0?)?))$">
+          </div>
+          <div>
+            <div *ngIf="isSubmitted && hasError('workTitle', 'required')" class="alert alert-danger mt-3" role="alert">
+              Please select a WorkTitle from the WorkTitle dropdown!!
+            </div>
+            <div *ngIf="isSubmitted && hasError('day', 'required')" class="alert alert-danger mt-3" role="alert">
+              Please select a Day from the Day dropdown!!
+            </div>
+            <div class="alert alert-danger mt-3"
+              *ngIf="isSubmitted && (hasError('inputHours', 'pattern') || hasError('inputHours', 'required'))"
+              role="alert">
+              Please provide a valid time input!!. accepted-range: (0:00-24:00), eg. 3, 7.5, 4.50, etc.
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="closeModal" type="button" class="btn btn-secondary" data-dismiss="modal"
+          (click)="isSubmitted = false;">Close</button>
+        <button type="button" class="btn btn-primary" (click)="updateTimeFromModal()">UpdateTime</button>
+      </div>
+    </div>
+  </div>
+</div>
